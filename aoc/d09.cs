@@ -13,8 +13,7 @@
 
     public void Run()
     {
-        var moves = File.ReadAllLines(@"..\..\..\09.txt").Select(line => new Move(line[0], Convert.ToInt32(line.Split(' ')[1]))).ToList();
-        moves.ForEach(MakeMove);
+        File.ReadAllLines(@"..\..\..\09.txt").Select(line => new Move(line[0], Convert.ToInt32(line.Split(' ')[1]))).ToList().ForEach(MakeMove); ;
 
         Console.WriteLine(tailPositions.Distinct().Count());
     }
