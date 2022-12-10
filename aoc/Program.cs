@@ -8,3 +8,5 @@ new d08_1().Run();
 new d08_2().Run();
 new d09_1().Run();
 new d09_2().Run();
+new d10_1().Run();
+new d10_2().Run();
