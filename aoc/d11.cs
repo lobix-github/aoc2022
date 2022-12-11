@@ -2,7 +2,6 @@
 {
     protected List<Monkey> monkeys = new List<Monkey>();
     private Dictionary<int, long> times = new Dictionary<int, long>();
-    private long commonDivider = 1;
 
     protected abstract int rounds { get; }
     protected abstract long TransformWorryLevel(long worryLevel);
@@ -11,6 +10,7 @@
     {
         var lines = File.ReadAllLines(@"..\..\..\11.txt");
 
+        long commonDivider = 1;
         var idx = 0;
         for (int i = 0; i < lines.Length; i += 7)
         {
@@ -51,7 +51,7 @@
         var toTrue = Convert.ToInt32(ms[3].Split(' ', StringSplitOptions.RemoveEmptyEntries)[5]);
         var toFalse = Convert.ToInt32(ms[4].Split(' ', StringSplitOptions.RemoveEmptyEntries)[5]);
 
-        return new Monkey(items, op, opArg, divBy, toTrue, toFalse, commonDivider);
+        return new Monkey(items, op, opArg, divBy, toTrue, toFalse);
     }
 }
 
@@ -67,7 +67,7 @@ class d11_2 : d11
     protected override long TransformWorryLevel(long worryLevel) => worryLevel;
 }
 
-record struct Monkey(List<long> items, char op, string opArg, int divBy, int toTrue, int toFalse, long commonDivider)
+record struct Monkey(List<long> items, char op, string opArg, int divBy, int toTrue, int toFalse)
 {
     Dictionary<char, Func<long, long, long>> ops = new Dictionary<char, Func<long, long, long>>()
     {
