@@ -11,29 +11,29 @@ abstract class d13
         Result(lines);
     }
 
-    void MakeGroups(Group _left, Group _right)
-    {
-        // make all non-grouped values grouped in case their pair is a group
-        for (int i = 0; i < Math.Min(_left.Length, _right.Length); i++) // enough to only compare to shorter length
-        {
-            if (_left[i].IsChar && !_right[i].IsChar) _left.MakeGroup(i);
-            if (!_left[i].IsChar && _right[i].IsChar) _right.MakeGroup(i);
-            if (!_left[i].IsChar && !_right[i].IsChar) MakeGroups(_left[i].Group, _right[i].Group);
-        }
-    }
-
     protected int Compare(string a, string b)
     {
-        var leftGroup = BuildGroup(a);
-        var rightGroup = BuildGroup(b);
+        var g1 = BuildGroup(a);
+        var g2 = BuildGroup(b);
 
-        MakeGroups(leftGroup, rightGroup);
+        return Compare(g1, g2);
+    }
 
-        var left = leftGroup.ToString();
-        var right = rightGroup.ToString();
+    int Compare(Group g1, Group g2)
+    {
+        var res = g1.Values.Zip(g2.Values).Select(z =>
+        {
+            (var v1, var v2) = z;
+            return (v1.IsInt, v2.IsInt) switch
+            {
+                (true, true) => v1.Char.CompareTo(v2.Char),
+                (true, false) => Compare(new Group(new Value(v1.Char)), v2.Group),
+                (false, true) => Compare(v1.Group, new Group(new Value(v2.Char))),
+                (false, false) => Compare(v1.Group, v2.Group),
+            };
+        }).ToList();
 
-        // compare as strings
-        return string.CompareOrdinal(left, right);
+        return res.All(x => x == 0) ? g1.Length - g2.Length : res.FirstOrDefault(x => x != 0);
     }
 
     Group BuildGroup(string line)
@@ -62,9 +62,8 @@ abstract class d13
             {
                 if (lpartial.Length > 0)
                 {
-                    // cheat in order to convert all integers (including two-char '10' to a single char, leaving it still comparable
-                    var valueChar = (char)('a' + Convert.ToInt32(lpartial.ToString())); 
-                    group.Values.Add(new Value(valueChar));
+                    var valueInt = Convert.ToInt32(lpartial.ToString()); 
+                    group.Values.Add(new Value(valueInt));
                     lpartial.Clear();
                 }
 
@@ -123,45 +122,22 @@ class Group
     public List<Value> Values = new List<Value>();
 
     public int Length => Values.Count;
-
-    public Value this[int index] => Values[index];
-
-    public void MakeGroup(int index)
-    {
-        Values[index] = new Value(new Group(this[index]));
-    }
-
-    public override string ToString()
-    {
-        var res = string.Join('_', Values.Select(v => v.ToString())); // '_' separators are greater than open/close brackets ('>', '<')
-
-        return $">{res}<"; // '>' > '<' -> will make opening bracket greater than closing one
-    }
 }
 
 class Value
 {
-    private readonly char value;
+    public readonly int Char;
     public readonly Group? Group;
 
-    public bool IsChar => this.Group == null;
+    public bool IsInt => Group == null;
 
-    public Value(char value)
+    public Value(int value)
     {
-        this.value = value;
+        Char = value;
     }
 
     public Value(Group group)
     {
-        this.Group = group;
-    }
-    public int Length => Group?.Length ?? 1;
-
-
-    public override string ToString()
-    {
-        if (IsChar) return $">{this.value}<"; // '>' > '<' -> will make opening bracket greater than closing one
-
-        return this.Group.ToString();
+        Group = group;
     }
 }
