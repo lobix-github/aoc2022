@@ -16,3 +16,5 @@ new d12_1().Run();
 new d12_2().Run();
 new d13_1().Run();
 new d13_2().Run();
+new d14_1().Run();
+new d14_2().Run();
