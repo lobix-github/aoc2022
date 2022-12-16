@@ -15,16 +15,15 @@
             nodes[name] = node;
         }
 
-        foreach (var v in nodes.Values)
+        foreach (var node in nodes.Values)
         {
-            string target = v.name;
-            var cur = nodes[target];
-            cur.minDists[target] = 0;
-            CalcMinDist(cur, target);
+            node.minDists[node.name] = 0;
+            CalcMinDist(node, node.name);
         }
 
         var superNodes = nodes.Values.Where(v => v.weight > 0).ToList();
-        var answer1 = Calculate(30, superNodes, "AA");
+        var result = Calculate(30, superNodes, "AA");
+        Console.WriteLine(result);
     }
     
     void CalcMinDist(Node current, string targetName)
@@ -34,7 +33,7 @@
         while (visited.Count < nodes.Count)
         {
             visited.Add(current.name);
-            int distance = current.minDists[targetName] + 1;
+            int distance = current.minDists[targetName] + edgeWeight;
             foreach (var nodeName in current.nodes)
             {
                 if (!visited.Contains(nodeName))
@@ -65,7 +64,10 @@
         }
         return max;
     }
+
+    int edgeWeight => 1; // in this case always 1, normally Dictionary<(Node, Node), int>
 }
+
 
 record struct Node(string name, int weight, List<string> nodes)
 {
