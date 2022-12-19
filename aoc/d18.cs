@@ -1,11 +1,9 @@
-﻿using System.Numerics;
-using System.Text.RegularExpressions;
-
+﻿
 abstract class d18
 {
     protected HashSet<Cube> lava = new HashSet<Cube>();
 
-    protected abstract void Result();
+    protected abstract int Result();
 
     public void Run()
     {
@@ -21,7 +19,13 @@ abstract class d18
             lava.Add(cube);
         }
 
-        long result = 0;
+        var result = Result();
+        Console.WriteLine(result);
+    }
+
+    protected int Result1()
+    {
+        int result = 0;
         for (int dim = 0; dim < 3; dim++)
         {
             var sortedLava = lava.ToList();
@@ -59,10 +63,10 @@ abstract class d18
             }
         }
 
-        Result();
+        return result;
     }
 
-    Cube GetNextCube(Cube cube, int dim)
+    protected Cube GetNextCube(Cube cube, int dim)
     {
         switch (dim)
         {
@@ -73,7 +77,7 @@ abstract class d18
         throw new NotImplementedException();
     }
 
-    Cube GetPrevCube(Cube cube, int dim)
+    protected Cube GetPrevCube(Cube cube, int dim)
     {
         switch (dim)
         {
@@ -87,15 +91,77 @@ abstract class d18
 
 class d18_1 : d18
 {
-    protected override void Result()
+    protected override int Result()
     {
+        return Result1();
     }
 }
 
 class d18_2 : d18
 {
-    protected override void Result()
+    const int worldSize = 22;
+
+    protected override int Result()
     {
+        var result1 = Result1();
+
+        var world = new HashSet<Cube>();
+        for (int x = 0; x < worldSize; x++)
+        {
+            for (int y = 0; y < worldSize; y++)
+            {
+                for (int z = 0; z < worldSize; z++)
+                {
+                    world.Add(new Cube(x, y, z));
+                }
+            }
+        }
+
+        var used = new HashSet<Cube>();
+        Queue<Cube> toCheck = new Queue<Cube>();
+        toCheck.Enqueue(new Cube(0, 0, 0));
+        while (toCheck.Any())
+        {
+            var c = toCheck.Dequeue();
+            if (used.Contains(c)) continue;
+            used.Add(c);
+
+            Cube candidate;
+            for (int dim = 0; dim < 3; dim++)
+            {
+                candidate = GetPrevCube(c, dim);
+                if (candidate.x >= 0 && candidate.y >= 0 && candidate.z >= 0
+                    && candidate.x < worldSize && candidate.y < worldSize && candidate.z < worldSize
+                    && !lava.Contains(candidate) && !used.Contains(candidate))
+                {
+                    toCheck.Enqueue(candidate);
+                }
+
+                candidate = GetNextCube(c, dim);
+                if (candidate.x >= 0 && candidate.y >= 0 && candidate.z >= 0
+                    && candidate.x < worldSize && candidate.y < worldSize && candidate.z < worldSize
+                    && !lava.Contains(candidate) && !used.Contains(candidate))
+                {
+                    toCheck.Enqueue(candidate);
+                }
+            }
+        }
+
+        var result2 = 0;
+        var air = world.Except(used).Except(lava).ToHashSet();
+        foreach (var c in air)
+        {
+            for (int dim = 0; dim < 3; dim++)
+            {
+                var prev = GetPrevCube(c, dim);
+                if (!air.Contains(prev)) result2++;
+
+                var next = GetNextCube(c, dim);
+                if (!air.Contains(prev)) result2++;
+            }
+        }
+
+        return result1 - result2;
     }
 }
 
