@@ -31,12 +31,20 @@ class MonkeyNode
         { '/', (l, r) => l / r },
     };
 
-    private Dictionary<char, Func<long, long, long>> revOps = new Dictionary<char, Func<long, long, long>>()
+    private Dictionary<char, Func<long, long, long>> revOpsLeft = new Dictionary<char, Func<long, long, long>>()
     {
         { '+', (a, b) => a - b },
         { '-', (a, b) => a + b },
         { '*', (a, b) => a / b },
         { '/', (a, b) => a * b },
+    };
+
+    private Dictionary<char, Func<long, long, long>> revOpsRight = new Dictionary<char, Func<long, long, long>>()
+    {
+        { '+', (a, b) => a - b },
+        { '-', (a, b) => b - a },
+        { '*', (a, b) => a / b },
+        { '/', (a, b) => b / a },
     };
 
     public string Name { get; init; }
@@ -47,8 +55,8 @@ class MonkeyNode
 
     public bool CalcIsNormalNode { get; set; } = true;
     public long CalcValue { get; set; }
-    public MonkeyNode CalcRevNode => !left.CalcIsNormalNode ? left : right;
-    public MonkeyNode CalcNormalNode => left.CalcIsNormalNode ? left : right;
+    public MonkeyNode CalcRevNode => !Left.CalcIsNormalNode ? Left : Right;
+    public MonkeyNode CalcNormalNode => Left.CalcIsNormalNode ? Left : Right;
 
     public MonkeyNode(HashSet<MonkeyInfo> monkeys, MonkeyNode? parent, MonkeyInfo info, ref MonkeyNode humnNode)
     {
@@ -61,9 +69,9 @@ class MonkeyNode
         {
             op = body.Split(' ')[1][0];
             var leftName = body.Split(' ')[0];
-            left = new MonkeyNode(monkeys, this, monkeys.Single(x => x.name == leftName), ref humnNode);
+            Left = new MonkeyNode(monkeys, this, monkeys.Single(x => x.name == leftName), ref humnNode);
             var rightName = body.Split(' ')[2];
-            right = new MonkeyNode(monkeys, this, monkeys.Single(x => x.name == rightName), ref humnNode);
+            Right = new MonkeyNode(monkeys, this, monkeys.Single(x => x.name == rightName), ref humnNode);
         }
         else
         {
@@ -84,13 +92,14 @@ class MonkeyNode
             return NumberValue;
         }
 
-        return ops[op](left.Value(), right.Value());
+        return ops[op](Left.Value(), Right.Value());
     }
 
-    public long CalcRevValue(long value) => revOps[op](CalcValue, value);
+    public long CalcRevValueForLeft(long value) => revOpsLeft[op](CalcValue, value);
+    public long CalcRevValueForRight(long value) => revOpsRight[op](CalcValue, value);
 
-    MonkeyNode? left;
-    MonkeyNode? right;
+    public MonkeyNode? Left;
+    public MonkeyNode? Right;
 }
 
 class d21_1 : d21
@@ -108,7 +117,7 @@ class d21_2 : d21
     {
         _ = root.Value();
         var firstNode = PrepareHumnBranch(humnNode);
-        firstNode.CalcValue = -root.CalcNormalNode.Value();
+        firstNode.CalcValue = root.CalcNormalNode.Value();
         CalcHumnValue(firstNode);
         Console.WriteLine(humnNode.CalcValue);
     }
@@ -129,7 +138,14 @@ class d21_2 : d21
     {
         do
         {
-            node.CalcRevNode.CalcValue = node.CalcRevValue(node.CalcNormalNode.Value());
+            if (node.Right.CalcIsNormalNode)
+            {
+                node.CalcRevNode.CalcValue = node.CalcRevValueForLeft(node.CalcNormalNode.Value());
+            }
+            else
+            {
+                node.CalcRevNode.CalcValue = node.CalcRevValueForRight(node.CalcNormalNode.Value());
+            }
             node = node.CalcRevNode;
         }
         while (node.Name != "humn");
