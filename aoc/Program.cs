@@ -28,4 +28,7 @@
 //new d20_2().Run();
 //new d21_1().Run();
 //new d21_2().Run();
+new d22_1_test().Run();
 new d22_1().Run();
+new d22_2_test().Run();
+new d22_2().Run();
