@@ -250,15 +250,6 @@ class d22_2 : d22
 
     protected override void ActualizeCurPos(MapPoint newPoint)
     {
-        curMapDirection = newPoint switch
-        {
-            MapPoint p when p.x > curPos.x => 0,
-            MapPoint p when p.y > curPos.y => 1,
-            MapPoint p when p.x < curPos.x => 2,
-            MapPoint p when p.y < curPos.y => 3,
-            _ => curMapDirection,
-        };
-
         base.ActualizeCurPos(newPoint);
 
         curPos3D = points3D.Single(kv => kv.Value == newPoint).Key;
@@ -518,6 +509,7 @@ class d22_2 : d22
                     cur3DDirection = new3DDirection(next);
                 }
             }
+            curMapDirection = CalcNewDirection(next);
             return next;
 
             int[] new3DDirection(CubePoint next) => IsWall(points3D[next]) ? cur3DDirection : curPos3D.side switch
@@ -565,6 +557,7 @@ class d22_2 : d22
                     cur3DDirection = new3DDirection(next);
                 }
             }
+            curMapDirection = CalcNewDirection(next);
             return next;
 
             int[] new3DDirection(CubePoint next) => IsWall(points3D[next]) ? cur3DDirection : curPos3D.side switch
@@ -612,6 +605,7 @@ class d22_2 : d22
                     cur3DDirection = new3DDirection(next);
                 }
             }
+            curMapDirection = CalcNewDirection(next);
             return next;
 
             int[] new3DDirection(CubePoint next) => IsWall(points3D[next]) ? cur3DDirection : curPos3D.side switch
@@ -625,6 +619,15 @@ class d22_2 : d22
     }
 
     protected override int CurMapDirection => curMapDirection;
+
+    int CalcNewDirection(CubePoint next) => points3D[next] switch
+    {
+        MapPoint p when p.x > curPos.x => 0,
+        MapPoint p when p.y > curPos.y => 1,
+        MapPoint p when p.x < curPos.x => 2,
+        MapPoint p when p.y < curPos.y => 3,
+        _ => throw new InvalidOperationException(),
+    };
 }
 
 class d22_1_test : d22_1
