@@ -34,5 +34,6 @@
 //new d22_2_test().Run();
 //new d22_2().Run();
 //new d23_1().Run();
-new d24_1().Run();
-new d24_2().Run();
+//new d24_1().Run();
+//new d24_2().Run();
+new d25_1().Run();
