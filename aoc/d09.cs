@@ -61,5 +61,5 @@ class d09_2 : d09
 }
 
 record struct Move(char dir, int dist);
-record struct Pos(int x, int y);
+public record struct Pos(int x, int y);
 
