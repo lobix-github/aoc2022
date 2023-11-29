@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-abstract class d05
+abstract class d01
 {
     const int cols = 9;
     const string s = @"move (?<qty>\d+) from (?<from>\d+) to (?<to>\d+)";
@@ -13,7 +13,7 @@ abstract class d05
 
     public void Run()
     {
-        var lines = File.ReadLines(@"..\..\..\05.txt").ToArray();
+        var lines = File.ReadLines(@"..\..\..\inputs\01.txt").ToArray();
 
         for (int i = 0; i < cols; i++)
         {
@@ -65,7 +65,7 @@ abstract class d05
     abstract protected void Arrange(int qty, int from, int to);
 }
 
-class d05_1 : d05
+class d01_1 : d01
 {
     override protected void Arrange(int qty, int from, int to)
     {
@@ -78,7 +78,7 @@ class d05_1 : d05
     }
 }
 
-class d05_2 : d05
+class d01_2 : d01
 {
     override protected void Arrange(int qty, int from, int to)
     {
